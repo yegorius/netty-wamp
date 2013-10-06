@@ -11,7 +11,7 @@ import java.util.List;
 
 public class EchoHandler implements RpcHandler {
 	@Override
-	public TreeNode call(List<Object> args) throws CallErrorException {
+	public TreeNode call(List<TreeNode> args) throws CallErrorException {
 		ArrayNode arrayNode = MessageMapper.objectMapper.createArrayNode();
 		for (Object o : args) arrayNode.add((JsonNode) o);
 		return arrayNode;

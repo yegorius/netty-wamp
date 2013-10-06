@@ -47,19 +47,21 @@ public class WelcomeMessage extends WampMessage {
 
 	public static WelcomeMessage fromJson(final String jsonStr) throws IOException {
 		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
-		if (jp.nextToken() != JsonToken.START_ARRAY) return null;
-		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) return null;
-		if (jp.getValueAsInt() != MessageType.WELCOME.getCode()) return null;
+		boolean valid = MessageMapper.validate(jp, MessageType.WELCOME);
+		if (valid) return fromParser(jp);
+		else throw new IOException("Wrong format");
+	}
 
+	public static WelcomeMessage fromParser(final JsonParser jp) throws IOException {
 		WelcomeMessage wm = new WelcomeMessage();
 
-		if (jp.nextToken() != JsonToken.VALUE_STRING) return null;
+		if (jp.nextToken() != JsonToken.VALUE_STRING) throw new IOException();
 		wm.sessionId = jp.getValueAsString();
 
-		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) return null;
+		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException();
 		wm.protocolVersion = jp.getValueAsInt();
 
-		if (jp.nextToken() != JsonToken.VALUE_STRING) return null;
+		if (jp.nextToken() != JsonToken.VALUE_STRING) throw new IOException();
 		wm.serverIdent = jp.getValueAsString();
 
 		jp.close();

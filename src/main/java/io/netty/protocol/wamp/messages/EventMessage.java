@@ -43,10 +43,12 @@ public class EventMessage extends WampMessage {
 
 	public static EventMessage fromJson(final String jsonStr) throws IOException {
 		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
-		if (jp.nextToken() != JsonToken.START_ARRAY) return null;
-		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) return null;
-		if (jp.getValueAsInt() != MessageType.EVENT.getCode()) return null;
+		boolean valid = MessageMapper.validate(jp, MessageType.EVENT);
+		if (valid) return fromParser(jp);
+		else throw new IOException("Wrong format");
+	}
 
+	public static EventMessage fromParser(final JsonParser jp) throws IOException {
 		EventMessage em = new EventMessage();
 
 		if (jp.nextToken() != JsonToken.VALUE_STRING) return null;

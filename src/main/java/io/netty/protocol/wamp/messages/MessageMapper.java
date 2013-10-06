@@ -14,33 +14,38 @@ public class MessageMapper {
 
 	public static WampMessage fromJson(final String jsonStr) throws IOException {
 		final JsonParser jp = jsonFactory.createParser(jsonStr);
-		if (jp.nextToken() != JsonToken.START_ARRAY) return null;
-		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) return null;
+		if (jp.nextToken() != JsonToken.START_ARRAY) throw new IOException("Not a JSON array");
+		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong message format");
 
 		MessageType messageType = MessageType.fromInteger(jp.getValueAsInt());
-		jp.close();
-		// TODO: reuse jp
 
 		switch (messageType) {
 			case WELCOME:
-				return WelcomeMessage.fromJson(jsonStr);
+				return WelcomeMessage.fromParser(jp);
 			case PREFIX:
-				return PrefixMessage.fromJson(jsonStr);
+				return PrefixMessage.fromParser(jp);
 			case CALL:
-				return CallMessage.fromJson(jsonStr);
+				return CallMessage.fromParser(jp);
 			case CALLRESULT:
-				return CallResultMessage.fromJson(jsonStr);
+				return CallResultMessage.fromParser(jp);
 			case CALLERROR:
-				return CallErrorMessage.fromJson(jsonStr);
+				return CallErrorMessage.fromParser(jp);
 			case SUBSCRIBE:
-				return SubscribeMessage.fromJson(jsonStr);
+				return SubscribeMessage.fromParser(jp);
 			case UNSUBSCRIBE:
-				return UnsubscribeMessage.fromJson(jsonStr);
+				return UnsubscribeMessage.fromParser(jp);
 			case PUBLISH:
-				return PublishMessage.fromJson(jsonStr);
+				return PublishMessage.fromParser(jp);
 			case EVENT:
-				return EventMessage.fromJson(jsonStr);
+				return EventMessage.fromParser(jp);
 		}
 		return null;
+	}
+
+	public static boolean validate(JsonParser jp, MessageType type) throws IOException {
+		if (jp.nextToken() != JsonToken.START_ARRAY) return false;
+		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) return false;
+		if (jp.getValueAsInt() != type.getCode()) return false;
+		return true;
 	}
 }

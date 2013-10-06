@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SumHandler implements RpcHandler {
 	@Override
-	public TreeNode call(List<Object> args) throws CallErrorException {
+	public TreeNode call(List<TreeNode> args) throws CallErrorException {
 		int sum;
 		sum = ((IntNode) args.get(0)).intValue() + ((IntNode) args.get(1)).intValue();
 		return new IntNode(sum);

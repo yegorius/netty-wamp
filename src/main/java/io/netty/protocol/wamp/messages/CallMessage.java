@@ -3,6 +3,7 @@ package io.netty.protocol.wamp.messages;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -12,7 +13,7 @@ import java.util.List;
 public class CallMessage extends WampMessage {
 	public String callId;
 	public String procURI;
-	public List<Object> args;
+	public List<TreeNode> args;
 
 	public CallMessage() {
 		super(MessageType.CALL);
@@ -36,7 +37,7 @@ public class CallMessage extends WampMessage {
 			jg.writeString(callId);
 			jg.writeString(procURI);
 			if (args != null && !args.isEmpty())
-				for (Object o : args) jg.writeObject(o);
+				for (TreeNode tn : args) jg.writeTree(tn);
 			jg.writeEndArray();
 			jg.close();
 			jsonStr = sw.toString();
@@ -48,10 +49,12 @@ public class CallMessage extends WampMessage {
 
 	public static CallMessage fromJson(final String jsonStr) throws IOException {
 		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
-		if (jp.nextToken() != JsonToken.START_ARRAY) return null;
-		if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) return null;
-		if (jp.getValueAsInt() != MessageType.CALL.getCode()) return null;
+		boolean valid = MessageMapper.validate(jp, MessageType.CALL);
+		if (valid) return fromParser(jp);
+		else throw new IOException("Wrong format");
+	}
 
+	public static CallMessage fromParser(final JsonParser jp) throws IOException {
 		CallMessage cm = new CallMessage();
 
 		if (jp.nextToken() != JsonToken.VALUE_STRING) return null;
@@ -62,6 +65,7 @@ public class CallMessage extends WampMessage {
 
 		cm.args = new ArrayList<>();
 		while (jp.nextToken() != JsonToken.END_ARRAY) cm.args.add(jp.readValueAsTree());
+		//cm.args.add(jp.readValueAs...);
 
 		jp.close();
 		return cm;

@@ -1,5 +1,6 @@
 package io.netty.protocol.wamp;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.protocol.wamp.messages.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,8 +8,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 public class SerDesTests {
 
@@ -65,11 +64,11 @@ public class SerDesTests {
 		Assert.assertEquals(expectedStr2, jsonStr2);
 
 		// Test3
-		Map<String, Object> userData = getExampleMap();
+		ObjectMapper mapper = MessageMapper.objectMapper;
 
 		cmSer.args = new ArrayList<>(2);
-		cmSer.args.add(userData);
-		cmSer.args.add(new int[] {1,2});
+		cmSer.args.add(mapper.valueToTree(getExampleMap()));
+		cmSer.args.add(mapper.valueToTree(new int[] {1,2}));
 
 		final String jsonStr3 = cmSer.toJson();
 		System.out.println(jsonStr3);
