@@ -33,4 +33,13 @@ public class WampServer {
 		// TODO
 		return topics.put(topicURI, new Topic(topicURI)) == null;
 	}
+
+	public boolean addTopic(String topicURI, Boolean notify) {
+		return topics.put(topicURI, new Topic(topicURI, notify)) == null;
+	}
+
+	public boolean addTopic(String topicURI, TopicModerator moderator) {
+		return topics.put(topicURI, new ModeratedTopic(topicURI, moderator)) == null;
+	}
+
 }

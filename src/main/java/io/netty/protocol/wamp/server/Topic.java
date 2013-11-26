@@ -10,20 +10,28 @@ public class Topic {
 	private final String topicURI;
 	//private final Set<Session> subscribers = Collections.newSetFromMap(Collections.synchronizedMap(new WeakHashMap<Session, Boolean>()));
 	private final Set<Session> subscribers = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<Session, Boolean>()));
+	private Boolean notify = false;
 
-	public Topic(String topicURI) {
+	public Topic(final String topicURI) {
 		this.topicURI = topicURI;
 	}
 
-	public boolean add(Session session) {
-		return subscribers.add(session);
+	public Topic(final String topicURI, final Boolean notify) {
+		this.topicURI = topicURI;
+		this.notify = notify;
 	}
 
-	public boolean remove(Session session) {
-		return subscribers.remove(session);
+	public void add(Session session) {
+		if (!subscribers.add(session)) return;
+		if (notify) post(Collections.singletonMap("partyJoined", session.sessionId), session);
 	}
 
-	public void post(final Object event) {
+	public void remove(final Session session) {
+		if (!subscribers.remove(session)) return;
+		if (notify) post(Collections.singletonMap("partyLeft", session.sessionId), session);
+	}
+
+	public void post(final Object event, final Session who) {
 		EventMessage msg = new EventMessage(topicURI, event);
 		synchronized (subscribers) {
 			for (Session s : subscribers) s.write(msg);

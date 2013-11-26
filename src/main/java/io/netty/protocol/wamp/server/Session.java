@@ -2,6 +2,7 @@ package io.netty.protocol.wamp.server;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.protocol.wamp.messages.EventMessage;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -18,7 +19,7 @@ public class Session {
 		this.ctx = ctx;
 	}
 
-	public ChannelFuture write(Object msg) {
+	public ChannelFuture write(EventMessage msg) {
 		return ctx.writeAndFlush(msg);
 	}
 

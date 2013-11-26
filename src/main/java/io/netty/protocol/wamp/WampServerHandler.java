@@ -1,6 +1,7 @@
 package io.netty.protocol.wamp;
 
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.protocol.wamp.messages.*;
@@ -14,15 +15,18 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 	private final WampServer wampServer;
 	private Session session;
 	private ChannelHandlerContext ctx;
+	private RpcHandler.HandlerContext handlerContext;
 
-	public WampServerHandler(WampServer wampServer) {
+	public WampServerHandler(WampServer wampServer, ObjectMapper objectMapper) {
 		this.wampServer = wampServer;
+		handlerContext = new RpcHandler.HandlerContext(wampServer, objectMapper);
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		this.ctx = ctx;
 		session = new Session(ctx);
+		handlerContext.setSession(session);
 		ctx.write(new WelcomeMessage(session.sessionId, wampServer.serverIdent));
 		//super.channelActive(ctx);
 	}
@@ -68,7 +72,7 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 
 		TreeNode callResult;
 		try {
-			callResult = rpcHandler.call(cm.args);
+			callResult = rpcHandler.call(cm.args, handlerContext);
 		} catch (CallErrorException cex) {
 			ctx.write(new CallErrorMessage(cm.callId, cex));
 			return;
@@ -78,53 +82,38 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 	}
 
 	public void handleSubscribeMessage(SubscribeMessage sm) {
-		Topic topic = wampServer.getTopic(sm.topicURI);
-		if (topic == null) {
-			sm.topicURI = resolveCURI(sm.topicURI);
-			topic = wampServer.getTopic(sm.topicURI);
-		}
-		if (topic == null) {
-			// TODO: no such topic
-			logger.debug("Topic not found: {}", sm.topicURI);
-			return;
-		}
-
+		Topic topic = getTopicOrFail(sm.topicURI);
 		topic.add(session);
 	}
 
 	public void handleUnsubscribeMessage(UnsubscribeMessage usm) {
-		Topic topic = wampServer.getTopic(usm.topicURI);
-		if (topic == null) {
-			usm.topicURI = resolveCURI(usm.topicURI);
-			topic = wampServer.getTopic(usm.topicURI);
-		}
-		if (topic == null) {
-			// TODO: no such topic
-			logger.debug("Topic not found: {}", usm.topicURI);
-			return;
-		}
-
+		Topic topic = getTopicOrFail(usm.topicURI);
 		topic.remove(session);
 	}
 
 	public void handlePublishMessage(PublishMessage pm) {
-		Topic topic = wampServer.getTopic(pm.topicURI);
+		Topic topic = getTopicOrFail(pm.topicURI);
+		topic.post(pm.event, session);
+	}
+
+	private Topic getTopicOrFail(String topicURI) {
+		Topic topic = wampServer.getTopic(topicURI);
 		if (topic == null) {
-			pm.topicURI = resolveCURI(pm.topicURI);
-			topic = wampServer.getTopic(pm.topicURI);
+			topicURI = resolveCURI(topicURI);
+			topic = wampServer.getTopic(topicURI);
 		}
 		if (topic == null) {
 			// TODO: no such topic
-			logger.debug("Topic not found: {}", pm.topicURI);
-			return;
+			logger.debug("Topic not found: {}", topicURI);
+			throw new IllegalArgumentException();
 		}
-
-		topic.post(pm.event);
+		return topic;
 	}
 
 	private String resolveCURI(final String curi) {
 		// TODO
 		String[] parts = curi.split(":");
+		if (parts.length == 0) return curi;
 		if (parts[0].equals("http") || parts[0].equals("https")) return curi;
 		else return session.prefixes.get(parts[0]) + parts[1];
 	}
