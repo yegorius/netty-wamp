@@ -8,7 +8,7 @@ public class ModeratedTopic extends Topic {
 		this.moderator = moderator;
 	}
 
-	public ModeratedTopic(final String topicURI, final Boolean notify, final TopicModerator moderator) {
+	public ModeratedTopic(final String topicURI, final TopicModerator moderator, final Boolean notify) {
 		super(topicURI, notify);
 		this.moderator = moderator;
 	}
