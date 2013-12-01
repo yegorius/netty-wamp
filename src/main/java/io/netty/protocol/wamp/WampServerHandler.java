@@ -110,10 +110,10 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 		return topic;
 	}
 
-	private String resolveCURI(final String curi) {
+	String resolveCURI(final String curi) {
 		// TODO
 		String[] parts = curi.split(":");
-		if (parts.length == 0) return curi;
+		if (parts.length < 2) return curi;
 		if (parts[0].equals("http") || parts[0].equals("https")) return curi;
 		else return session.prefixes.get(parts[0]) + parts[1];
 	}
