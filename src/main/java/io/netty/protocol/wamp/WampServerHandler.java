@@ -58,6 +58,8 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 	}
 
 	public void handlePrefixMessage(PrefixMessage pm) {
+		final String pref = pm.prefix;
+		if (pref.startsWith("http") || pref.startsWith("https") || pref.startsWith("ws")) return;
 		session.prefixes.put(pm.prefix, pm.URI);
 	}
 
@@ -111,10 +113,9 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 	}
 
 	String resolveCURI(final String curi) {
-		// TODO
+		if (curi.startsWith("http:") || curi.startsWith("https:") || curi.startsWith("ws:")) return curi;
 		String[] parts = curi.split(":");
-		if (parts.length < 2) return curi;
-		if (parts[0].equals("http") || parts[0].equals("https")) return curi;
+		if (parts.length < 2) return session.prefixes.get(curi);
 		else return session.prefixes.get(parts[0]) + parts[1];
 	}
 }
