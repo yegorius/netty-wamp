@@ -59,7 +59,7 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 
 	public void handlePrefixMessage(PrefixMessage pm) {
 		final String pref = pm.prefix;
-		if (pref.startsWith("http") || pref.startsWith("https") || pref.startsWith("ws")) return;
+		if (pref.equals("http") || pref.equals("https") || pref.equals("ws")) return;
 		session.prefixes.put(pm.prefix, pm.URI);
 	}
 
