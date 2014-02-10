@@ -9,9 +9,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 public class CallErrorMessage extends WampMessage {
+	public static final String DEFAULT_ERROR_URI = "http://wamp.ws/error#generic";
 	public String callId;
+	// TODO: errorURI resolver
 	public String errorURI;
 	public String errorDesc;
+	// TODO: errorDetails to JsonNode
 	public Object errorDetails;
 
 	public CallErrorMessage() {
@@ -28,7 +31,9 @@ public class CallErrorMessage extends WampMessage {
 	public CallErrorMessage(String callId, CallErrorException cex) {
 		super(MessageType.CALLERROR);
 		this.callId = callId;
-		// TODO: create message from exception
+		this.errorURI = cex.getErrorURI();
+		this.errorDesc = cex.getMessage();
+		this.errorDetails = cex.errorDetails;
 	}
 
 	@Override

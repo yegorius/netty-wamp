@@ -52,8 +52,6 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 				break;
 			default:
 				logger.debug("Not a client-to-server message received: {}", message.toString());
-				// not allowed message
-				// TODO: send error
 		}
 	}
 
@@ -67,8 +65,7 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 		RpcHandler rpcHandler = wampServer.getHandler(cm.procURI);
 		if (rpcHandler == null) rpcHandler = wampServer.getHandler(resolveCURI(cm.procURI));
 		if (rpcHandler == null) {
-			// TODO: errorURI
-			ctx.write(new CallErrorMessage(cm.callId, "errorURI", "No such method"));
+			ctx.write(new CallErrorMessage(cm.callId, "http:/wamp.ws/error#nosuchproc", "Such procedure does not exist"));
 			return;
 		}
 
@@ -84,30 +81,31 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 	}
 
 	public void handleSubscribeMessage(SubscribeMessage sm) {
-		Topic topic = getTopicOrFail(sm.topicURI);
+		Topic topic = getTopic(sm.topicURI);
+		if (topic == null) return;
 		topic.add(session);
 	}
 
 	public void handleUnsubscribeMessage(UnsubscribeMessage usm) {
-		Topic topic = getTopicOrFail(usm.topicURI);
+		Topic topic = getTopic(usm.topicURI);
+		if (topic == null) return;
 		topic.remove(session);
 	}
 
 	public void handlePublishMessage(PublishMessage pm) {
-		Topic topic = getTopicOrFail(pm.topicURI);
+		Topic topic = getTopic(pm.topicURI);
+		if (topic == null) return;
 		topic.post(pm.event, session);
 	}
 
-	private Topic getTopicOrFail(String topicURI) {
+	private Topic getTopic(String topicURI) {
 		Topic topic = wampServer.getTopic(topicURI);
 		if (topic == null) {
 			topicURI = resolveCURI(topicURI);
 			topic = wampServer.getTopic(topicURI);
 		}
 		if (topic == null) {
-			// TODO: no such topic
 			logger.debug("Topic not found: {}", topicURI);
-			throw new IllegalArgumentException();
 		}
 		return topic;
 	}

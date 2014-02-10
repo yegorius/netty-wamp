@@ -13,6 +13,9 @@ public class Session {
 	public final String sessionId;
 	private final ChannelHandlerContext ctx;
 	public final HashMap<String, String> prefixes = new HashMap<>();
+	public String authKey;
+	public String challenge;
+	public String signature; // HmacSHA256(challenge, secret)
 
 	public Session(ChannelHandlerContext ctx) {
 		this.sessionId = randomString(ID_LENGTH);
@@ -21,6 +24,14 @@ public class Session {
 
 	public ChannelFuture write(EventMessage msg) {
 		return ctx.writeAndFlush(msg);
+	}
+
+	public boolean isAuthRequested() {
+		return authKey != null;
+	}
+
+	public boolean isAuthenticated() {
+		return signature != null;
 	}
 
 	private final static String alphaNum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

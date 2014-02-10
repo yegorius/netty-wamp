@@ -23,7 +23,7 @@ public interface RpcHandler {
 		}
 
 		public void setSession(final Session session) {
-			if (session != null) return;
+			if (this.session != null) return;
 			this.session = session;
 		}
 	}
