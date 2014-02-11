@@ -18,7 +18,7 @@ public class AuthReqHandler implements RpcHandler {
 		if (ctx.getSession().isAuthRequested()) throw new CallErrorException("Already authenticated");
 
 		final String authKey = ((TextNode) args.get(0)).textValue();
-		if (!ctx.wampServer.secretHolder.keyExists(authKey)) throw new CallErrorException("Authentication key does not exist");
+		if (!ctx.wampServer.authSecretProvider.keyExists(authKey)) throw new CallErrorException("Authentication key does not exist");
 
 		String extra = null;
 		if (args.get(1) != null && !(args.get(1) instanceof NullNode)) {

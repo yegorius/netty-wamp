@@ -15,13 +15,13 @@ public class AuthHandler implements RpcHandler {
 	@Override
 	public TreeNode call(final List<TreeNode> args, final HandlerContext ctx) throws CallErrorException {
 		if (!ctx.getSession().isAuthRequested()) throw new CallErrorException("No authentication previously requested");
-		if (ctx.wampServer.secretHolder == null) throw new CallErrorException("Internal server error");
+		if (ctx.wampServer.authSecretProvider == null) throw new CallErrorException("Internal server error");
 
 		final String clientSignature = ((TextNode) args.get(0)).textValue();
 
 		final String correctSignature;
 		try {
-			final String secret = ctx.wampServer.secretHolder.getSecret(ctx.getSession().authKey);
+			final String secret = ctx.wampServer.authSecretProvider.getSecret(ctx.getSession().authKey);
 			if (secret == null || secret.isEmpty()) throw new CallErrorException("Authentication secret does not exist");
 			correctSignature = HmacSHA256.generate(ctx.getSession().challenge, secret);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {

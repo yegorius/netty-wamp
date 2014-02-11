@@ -1,6 +1,6 @@
 package io.netty.protocol.wamp.server;
 
-import io.netty.protocol.wamp.cra.SecretHolder;
+import io.netty.protocol.wamp.cra.AuthSecretProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ public class WampServer {
 	public final String serverIdent;
 	private ConcurrentMap<String, Topic> topics = new ConcurrentHashMap<>();
 	private ConcurrentMap<String, RpcHandler> rpcHandlers = new ConcurrentHashMap<>();
-	public SecretHolder secretHolder;
+	public AuthSecretProvider authSecretProvider;
 
 	public WampServer(String serverIdent) {
 		this.serverIdent = serverIdent;
