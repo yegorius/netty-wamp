@@ -12,7 +12,7 @@ public class EchoHandler implements RpcHandler {
 	@Override
 	public TreeNode call(List<TreeNode> args, HandlerContext ctx) throws CallErrorException {
 		ArrayNode arrayNode = ctx.mapper.createArrayNode();
-		for (Object o : args) arrayNode.add((JsonNode) o);
+		for (TreeNode node : args) arrayNode.add((JsonNode) node);
 		return arrayNode;
 	}
 }

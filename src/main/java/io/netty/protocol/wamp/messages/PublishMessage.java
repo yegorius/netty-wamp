@@ -3,6 +3,7 @@ package io.netty.protocol.wamp.messages;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
@@ -10,8 +11,9 @@ import java.io.StringWriter;
 import java.util.List;
 
 public class PublishMessage extends WampMessage {
+	private static final String WRONG_MSG = "Wrong message format";
 	public String topicURI;
-	public Object event;
+	public TreeNode event;
 	public Boolean excludeMe;
 	public List<String> exclude;
 	public List<String> eligible;
@@ -20,7 +22,7 @@ public class PublishMessage extends WampMessage {
 		super(MessageType.PUBLISH);
 	}
 
-	public PublishMessage(String topicURI, Object event) {
+	public PublishMessage(String topicURI, TreeNode event) {
 		super(MessageType.PUBLISH);
 		this.topicURI = topicURI;
 		this.event = event;
@@ -36,7 +38,7 @@ public class PublishMessage extends WampMessage {
 			jg.writeStartArray();
 			jg.writeNumber(getMessageCode());
 			jg.writeString(topicURI);
-			jg.writeObject(event);
+			jg.writeTree(event);
 			if (excludeMe != null && excludeMe) {
 				jg.writeBoolean(excludeMe);
 			} else if (exclude != null || eligible != null) {
@@ -66,13 +68,13 @@ public class PublishMessage extends WampMessage {
 		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
 		boolean valid = MessageMapper.validate(jp, MessageType.PUBLISH);
 		if (valid) return fromParser(jp);
-		else throw new IOException("Wrong format");
+		else throw new IOException(WRONG_MSG);
 	}
 
 	public static PublishMessage fromParser(final JsonParser jp) throws IOException {
 		PublishMessage pm = new PublishMessage();
 
-		if (jp.nextToken() != JsonToken.VALUE_STRING) return null;
+		if (jp.nextToken() != JsonToken.VALUE_STRING) throw new IOException(WRONG_MSG);
 		pm.topicURI = jp.getValueAsString();
 
 		jp.nextToken();
@@ -84,15 +86,15 @@ public class PublishMessage extends WampMessage {
 
 				if (jp.nextToken() != JsonToken.END_ARRAY) {
 					// Wrong message format, excludeMe should not be followed by any value
-					return null;
+					throw new IOException(WRONG_MSG);
 				}
 			} else {
 				TypeReference<List<String>> typRef = new TypeReference<List<String>>() {};
 
-				if (jp.getCurrentToken() != JsonToken.START_ARRAY) return null;
+				if (jp.getCurrentToken() != JsonToken.START_ARRAY) throw new IOException(WRONG_MSG);
 				pm.exclude = jp.readValueAs(typRef);
 
-				if (jp.nextToken() != JsonToken.START_ARRAY) return null;
+				if (jp.nextToken() != JsonToken.START_ARRAY) throw new IOException(WRONG_MSG);
 				pm.eligible = jp.readValueAs(typRef);
 			}
 		}

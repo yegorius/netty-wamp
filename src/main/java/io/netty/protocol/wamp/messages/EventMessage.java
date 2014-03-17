@@ -3,19 +3,20 @@ package io.netty.protocol.wamp.messages;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 public class EventMessage extends WampMessage {
 	public String topicURI;
-	public Object event;
+	public TreeNode event;
 
 	public EventMessage() {
 		super(MessageType.EVENT);
 	}
 
-	public EventMessage(String topicURI, Object event) {
+	public EventMessage(String topicURI, TreeNode event) {
 		super(MessageType.EVENT);
 		this.topicURI = topicURI;
 		this.event = event;
@@ -31,7 +32,7 @@ public class EventMessage extends WampMessage {
 			jg.writeStartArray();
 			jg.writeNumber(getMessageCode());
 			jg.writeString(topicURI);
-			jg.writeObject(event);
+			jg.writeTree(event);
 			jg.writeEndArray();
 			jg.close();
 			jsonStr = sw.toString();

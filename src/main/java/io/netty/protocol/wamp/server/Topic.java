@@ -1,6 +1,8 @@
 package io.netty.protocol.wamp.server;
 
+import com.fasterxml.jackson.core.TreeNode;
 import io.netty.protocol.wamp.messages.EventMessage;
+import io.netty.protocol.wamp.messages.MessageMapper;
 
 import java.util.Collections;
 import java.util.Set;
@@ -23,15 +25,15 @@ public class Topic {
 
 	public void add(Session session) {
 		if (!subscribers.add(session)) return;
-		if (notify) post(Collections.singletonMap("partyJoined", session.sessionId), session);
+		if (notify) post(MessageMapper.objectMapper.valueToTree(Collections.singletonMap("partyJoined", session.sessionId)), session);
 	}
 
 	public void remove(final Session session) {
 		if (!subscribers.remove(session)) return;
-		if (notify) post(Collections.singletonMap("partyLeft", session.sessionId), session);
+		if (notify) post(MessageMapper.objectMapper.valueToTree(Collections.singletonMap("partyLeft", session.sessionId)), session);
 	}
 
-	public void post(final Object event, final Session who) {
+	public void post(final TreeNode event, final Session who) {
 		EventMessage msg = new EventMessage(topicURI, event);
 		synchronized (subscribers) {
 			for (Session s : subscribers) s.write(msg);

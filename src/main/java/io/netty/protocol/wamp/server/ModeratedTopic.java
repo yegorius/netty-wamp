@@ -1,5 +1,7 @@
 package io.netty.protocol.wamp.server;
 
+import com.fasterxml.jackson.core.TreeNode;
+
 public class ModeratedTopic extends Topic {
 	private final TopicModerator moderator;
 
@@ -25,7 +27,7 @@ public class ModeratedTopic extends Topic {
 	}
 
 	@Override
-	public void post(final Object event, final Session who) {
+	public void post(final TreeNode event, final Session who) {
 		if (moderator.mayPost(event, who)) super.post(event, who);
 	}
 }

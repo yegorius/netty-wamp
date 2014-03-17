@@ -1,12 +1,13 @@
 package io.netty.protocol.wamp.server;
 
+import com.fasterxml.jackson.core.TreeNode;
 import io.netty.protocol.wamp.messages.CallErrorMessage;
 
 import java.io.IOException;
 
 public class CallErrorException extends IOException {
 	private String errorURI = CallErrorMessage.DEFAULT_ERROR_URI;
-	public Object errorDetails = null;
+	public TreeNode errorDetails = null;
 
 	public CallErrorException() {
 		super();

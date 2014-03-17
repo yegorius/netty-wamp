@@ -65,7 +65,6 @@ public class CallMessage extends WampMessage {
 
 		cm.args = new ArrayList<>();
 		while (jp.nextToken() != JsonToken.END_ARRAY) cm.args.add(jp.readValueAsTree());
-		//cm.args.add(jp.readValueAs...);
 
 		jp.close();
 		return cm;

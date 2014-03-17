@@ -3,19 +3,20 @@ package io.netty.protocol.wamp.messages;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 public class CallResultMessage extends WampMessage {
 	public String callId;
-	public Object result;
+	public TreeNode result;
 
 	public CallResultMessage() {
 		super(MessageType.CALLRESULT);
 	}
 
-	public CallResultMessage(String callId, Object result) {
+	public CallResultMessage(String callId, TreeNode result) {
 		super(MessageType.CALLRESULT);
 		this.callId = callId;
 		this.result = result;
@@ -31,7 +32,7 @@ public class CallResultMessage extends WampMessage {
 			jg.writeStartArray();
 			jg.writeNumber(getMessageCode());
 			jg.writeString(callId);
-			jg.writeObject(result);
+			jg.writeTree(result);
 			jg.writeEndArray();
 			jg.close();
 			jsonStr = sw.toString();

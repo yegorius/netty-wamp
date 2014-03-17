@@ -3,6 +3,7 @@ package io.netty.protocol.wamp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.protocol.wamp.messages.*;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -10,6 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SerDesTests {
+
+	private static ObjectMapper mapper;
+
+	@BeforeClass
+	public static void setUp() throws Exception {
+		mapper = new ObjectMapper();
+	}
 
 	@Test
 	public void testWelcomeMessageSer() throws Exception {
@@ -19,7 +27,8 @@ public class SerDesTests {
 
 		final String jsonStr = wmSer.toJson();
 		System.out.println(jsonStr);
-		final String expectedStr = String.format("[%d,\"%s\",%d,\"%s\"]", wmSer.getMessageCode(), sessionStr, WelcomeMessage.PROTOCOL_VERSION, serverIdentStr);
+		final String expectedStr = String.format("[%d,\"%s\",%d,\"%s\"]",
+				wmSer.getMessageCode(), sessionStr, WelcomeMessage.PROTOCOL_VERSION, serverIdentStr);
 		Assert.assertEquals(expectedStr, jsonStr);
 
 		WelcomeMessage wmDes = WelcomeMessage.fromJson(expectedStr);
@@ -60,7 +69,8 @@ public class SerDesTests {
 		cmSer.args.add(null);
 		final String jsonStr2 = cmSer.toJson();
 		System.out.println(jsonStr2);
-		final String expectedStr2 = String.format("[%d,\"%s\",\"%s\",%s]", cmSer.getMessageCode(), callIdStr, procURI, "null");
+		final String expectedStr2 = String.format("[%d,\"%s\",\"%s\",%s]",
+				cmSer.getMessageCode(), callIdStr, procURI, "null");
 		Assert.assertEquals(expectedStr2, jsonStr2);
 
 		// Test3
@@ -72,7 +82,8 @@ public class SerDesTests {
 
 		final String jsonStr3 = cmSer.toJson();
 		System.out.println(jsonStr3);
-		final String expectedStr3 = String.format("[%d,\"%s\",\"%s\",%s]", cmSer.getMessageCode(), callIdStr, procURI, exampleStr + ",[1,2]");
+		final String expectedStr3 = String.format("[%d,\"%s\",\"%s\",%s]",
+				cmSer.getMessageCode(), callIdStr, procURI, exampleStr + ",[1,2]");
 		Assert.assertEquals(expectedStr3, jsonStr3);
 
 		CallMessage cmDes = CallMessage.fromJson(expectedStr3);
@@ -92,7 +103,7 @@ public class SerDesTests {
 		Assert.assertEquals(expectedStr1, jsonStr1);
 
 		// Test2
-		crmSer.result = getExampleMap();
+		crmSer.result = mapper.valueToTree(getExampleMap());
 		final String jsonStr2 = crmSer.toJson();
 		System.out.println(jsonStr2);
 		final String expectedStr2 = String.format("[%d,\"%s\",%s]", crmSer.getMessageCode(), callIdStr, exampleStr);
@@ -113,14 +124,16 @@ public class SerDesTests {
 		// Test1
 		final String jsonStr1 = cemSer.toJson();
 		System.out.println(jsonStr1);
-		final String expectedStr1 = String.format("[%d,\"%s\",\"%s\",\"%s\"]", cemSer.getMessageCode(), callIdStr, errorURI, errorDesc);
+		final String expectedStr1 = String.format("[%d,\"%s\",\"%s\",\"%s\"]",
+				cemSer.getMessageCode(), callIdStr, errorURI, errorDesc);
 		Assert.assertEquals(expectedStr1, jsonStr1);
 
 		// Test2
-		cemSer.errorDetails = new int[] {123,45};
+		cemSer.errorDetails = mapper.valueToTree(new int[] {123,45});
 		final String jsonStr2 = cemSer.toJson();
 		System.out.println(jsonStr2);
-		final String expectedStr2 = String.format("[%d,\"%s\",\"%s\",\"%s\",%s]", cemSer.getMessageCode(), callIdStr, errorURI, errorDesc, "[123,45]");
+		final String expectedStr2 = String.format("[%d,\"%s\",\"%s\",\"%s\",%s]",
+				cemSer.getMessageCode(), callIdStr, errorURI, errorDesc, "[123,45]");
 		Assert.assertEquals(expectedStr2, jsonStr2);
 
 		CallErrorMessage cemDes = CallErrorMessage.fromJson(expectedStr2);
@@ -156,12 +169,13 @@ public class SerDesTests {
 	@Test
 	public void testPublishMessage() throws Exception {
 		String topicUri = "http://api.dotts.net/games;id=12345";
-		PublishMessage pmSer = new PublishMessage(topicUri, new int[] {23,45});
+		PublishMessage pmSer = new PublishMessage(topicUri, mapper.valueToTree(new int[] {23,45}));
 
 		// Test1
 		final String jsonStr1 = pmSer.toJson();
 		System.out.println(jsonStr1);
-		final String expectedStr1 = String.format("[%d,\"%s\",%s]", pmSer.getMessageCode(), topicUri, "[23,45]");
+		final String expectedStr1 = String.format("[%d,\"%s\",%s]",
+				pmSer.getMessageCode(), topicUri, "[23,45]");
 		Assert.assertEquals(expectedStr1, jsonStr1);
 
 		pmSer.excludeMe = false;
@@ -171,7 +185,8 @@ public class SerDesTests {
 		pmSer.excludeMe = true;
 		final String jsonStr2 = pmSer.toJson();
 		System.out.println(jsonStr2);
-		final String expectedStr2 = String.format("[%d,\"%s\",%s,%s]", pmSer.getMessageCode(), topicUri, "[23,45]", "true");
+		final String expectedStr2 = String.format("[%d,\"%s\",%s,%s]",
+				pmSer.getMessageCode(), topicUri, "[23,45]", "true");
 		Assert.assertEquals(expectedStr2, jsonStr2);
 
 		PublishMessage pmDes = PublishMessage.fromJson(expectedStr2);
@@ -188,14 +203,16 @@ public class SerDesTests {
 		pmSer.eligible.add("dsa");
 		final String jsonStr3 = pmSer.toJson();
 		System.out.println(jsonStr3);
-		final String expectedStr3 = String.format("[%d,\"%s\",%s,%s,%s]", pmSer.getMessageCode(), topicUri, "[23,45]", "[\"qwe\",\"asd\"]", "[\"ewq\",\"dsa\"]");
+		final String expectedStr3 = String.format("[%d,\"%s\",%s,%s,%s]",
+				pmSer.getMessageCode(), topicUri, "[23,45]", "[\"qwe\",\"asd\"]", "[\"ewq\",\"dsa\"]");
 		Assert.assertEquals(expectedStr3, jsonStr3);
 
 		// Test 4
 		pmSer.exclude = null;
 		final String jsonStr4 = pmSer.toJson();
 		System.out.println(jsonStr4);
-		final String expectedStr4 = String.format("[%d,\"%s\",%s,%s,%s]", pmSer.getMessageCode(), topicUri, "[23,45]", "[]", "[\"ewq\",\"dsa\"]");
+		final String expectedStr4 = String.format("[%d,\"%s\",%s,%s,%s]",
+				pmSer.getMessageCode(), topicUri, "[23,45]", "[]", "[\"ewq\",\"dsa\"]");
 		Assert.assertEquals(expectedStr4, jsonStr4);
 
 		pmSer.exclude = new ArrayList<>(1);
@@ -209,7 +226,7 @@ public class SerDesTests {
 	@Test
 	public void testEventMessage() throws Exception {
 		String topicUri = "http://api.dotts.net/games;id=12345";
-		EventMessage emSer = new EventMessage(topicUri, getExampleMap());
+		EventMessage emSer = new EventMessage(topicUri, mapper.valueToTree(getExampleMap()));
 
 		final String jsonStr1 = emSer.toJson();
 		System.out.println(jsonStr1);

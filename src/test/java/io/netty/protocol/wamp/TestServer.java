@@ -1,5 +1,6 @@
 package io.netty.protocol.wamp;
 
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -64,7 +65,7 @@ public class TestServer {
 		}
 
 		@Override
-		public boolean mayPost(final Object event, final Session who) {
+		public boolean mayPost(final TreeNode event, final Session who) {
 			log.info("mayPost: " + who.sessionId);
 			return true;
 		}

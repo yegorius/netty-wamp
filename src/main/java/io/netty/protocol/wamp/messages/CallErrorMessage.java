@@ -3,6 +3,7 @@ package io.netty.protocol.wamp.messages;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 import io.netty.protocol.wamp.server.CallErrorException;
 
 import java.io.IOException;
@@ -14,8 +15,7 @@ public class CallErrorMessage extends WampMessage {
 	// TODO: errorURI resolver
 	public String errorURI;
 	public String errorDesc;
-	// TODO: errorDetails to JsonNode
-	public Object errorDetails;
+	public TreeNode errorDetails;
 
 	public CallErrorMessage() {
 		super(MessageType.CALLERROR);
@@ -48,7 +48,7 @@ public class CallErrorMessage extends WampMessage {
 			jg.writeString(callId);
 			jg.writeString(errorURI);
 			jg.writeString(errorDesc);
-			if (errorDetails != null) jg.writeObject(errorDetails);
+			if (errorDetails != null) jg.writeTree(errorDetails);
 			jg.writeEndArray();
 			jg.close();
 			jsonStr = sw.toString();
