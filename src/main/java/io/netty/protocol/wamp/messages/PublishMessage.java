@@ -40,7 +40,7 @@ public class PublishMessage extends WampMessage {
 			jg.writeString(topicURI);
 			jg.writeTree(event);
 			if (excludeMe != null && excludeMe) {
-				jg.writeBoolean(excludeMe);
+				jg.writeBoolean(true);
 			} else if (exclude != null || eligible != null) {
 				if (exclude != null) {
 					jg.writeObject(exclude);
@@ -65,10 +65,11 @@ public class PublishMessage extends WampMessage {
 	}
 
 	public static PublishMessage fromJson(final String jsonStr) throws IOException {
-		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
-		boolean valid = MessageMapper.validate(jp, MessageType.PUBLISH);
-		if (valid) return fromParser(jp);
-		else throw new IOException(WRONG_MSG);
+		try (JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr)) {
+			boolean valid = MessageMapper.validate(jp, MessageType.PUBLISH);
+			if (valid) return fromParser(jp);
+			else throw new IOException(WRONG_MSG);
+		}
 	}
 
 	public static PublishMessage fromParser(final JsonParser jp) throws IOException {
@@ -99,7 +100,6 @@ public class PublishMessage extends WampMessage {
 			}
 		}
 
-		jp.close();
 		return pm;
 	}
 }

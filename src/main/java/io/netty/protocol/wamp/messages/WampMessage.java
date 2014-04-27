@@ -18,7 +18,4 @@ public abstract class WampMessage {
 	public String toString() {
 		return toJson();
 	}
-
-	//optimized version
-	//public abstract byte[] toBytes();
 }

@@ -42,10 +42,11 @@ public class PrefixMessage extends WampMessage {
 	}
 
 	public static PrefixMessage fromJson(final String jsonStr) throws IOException {
-		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
-		boolean valid = MessageMapper.validate(jp, MessageType.PREFIX);
-		if (valid) return fromParser(jp);
-		else throw new IOException("Wrong format");
+		try (JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr)) {
+			boolean valid = MessageMapper.validate(jp, MessageType.PREFIX);
+			if (valid) return fromParser(jp);
+			else throw new IOException("Wrong format");
+		}
 	}
 
 	public static PrefixMessage fromParser(final JsonParser jp) throws IOException {
@@ -57,7 +58,6 @@ public class PrefixMessage extends WampMessage {
 		if (jp.nextToken() != JsonToken.VALUE_STRING) throw new IOException();
 		pm.URI = jp.getValueAsString();
 
-		jp.close();
 		return pm;
 	}
 

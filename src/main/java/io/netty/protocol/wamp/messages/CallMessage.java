@@ -48,10 +48,11 @@ public class CallMessage extends WampMessage {
 	}
 
 	public static CallMessage fromJson(final String jsonStr) throws IOException {
-		JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr);
-		boolean valid = MessageMapper.validate(jp, MessageType.CALL);
-		if (valid) return fromParser(jp);
-		else throw new IOException("Wrong format");
+		try (JsonParser jp = MessageMapper.jsonFactory.createParser(jsonStr)) {
+			boolean valid = MessageMapper.validate(jp, MessageType.CALL);
+			if (valid) return fromParser(jp);
+			else throw new IOException("Wrong format");
+		}
 	}
 
 	public static CallMessage fromParser(final JsonParser jp) throws IOException {
@@ -66,7 +67,6 @@ public class CallMessage extends WampMessage {
 		cm.args = new ArrayList<>();
 		while (jp.nextToken() != JsonToken.END_ARRAY) cm.args.add(jp.readValueAsTree());
 
-		jp.close();
 		return cm;
 	}
 }
