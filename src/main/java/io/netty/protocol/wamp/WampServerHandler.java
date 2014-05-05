@@ -27,7 +27,7 @@ public class WampServerHandler extends SimpleChannelInboundHandler<WampMessage> 
 		this.ctx = ctx;
 		session = new Session(ctx);
 		handlerContext.setSession(session);
-		ctx.write(new WelcomeMessage(session.sessionId, wampServer.serverIdent));
+		ctx.write(new WelcomeMessage(session.id, wampServer.serverIdent));
 		//super.channelActive(ctx);
 	}
 

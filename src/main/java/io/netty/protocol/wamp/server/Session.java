@@ -10,7 +10,7 @@ import java.util.Random;
 public class Session {
 	private static final int ID_LENGTH = 16;
 
-	public final String sessionId;
+	public final String id;
 	private final ChannelHandlerContext ctx;
 	public final HashMap<String, String> prefixes = new HashMap<>();
 	public String authKey;
@@ -18,7 +18,7 @@ public class Session {
 	public String signature; // HmacSHA256(challenge, secret)
 
 	public Session(ChannelHandlerContext ctx) {
-		this.sessionId = randomString(ID_LENGTH);
+		this.id = randomString(ID_LENGTH);
 		this.ctx = ctx;
 	}
 

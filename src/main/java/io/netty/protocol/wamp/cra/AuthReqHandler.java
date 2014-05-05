@@ -26,7 +26,7 @@ public class AuthReqHandler implements RpcHandler {
 		}
 
 		try {
-			final String challenge = HmacSHA256.generate(ctx.getSession().sessionId + System.currentTimeMillis(), authKey);
+			final String challenge = HmacSHA256.generate(ctx.getSession().id + System.currentTimeMillis(), authKey);
 			ctx.getSession().authKey = authKey;
 			ctx.getSession().challenge = challenge;
 			return new TextNode(challenge);

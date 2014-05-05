@@ -60,19 +60,19 @@ public class TestServer {
 
 		@Override
 		public boolean mayAdd(final Session session) {
-			log.info("mayAdd: " + session.sessionId);
+			log.info("mayAdd: " + session.id);
 			return true;
 		}
 
 		@Override
 		public boolean mayPost(final TreeNode event, final Session who) {
-			log.info("mayPost: " + who.sessionId);
+			log.info("mayPost: " + who.id);
 			return true;
 		}
 
 		@Override
 		public void remove(final Session session) {
-			log.info("remove: " + session.sessionId);
+			log.info("remove: " + session.id);
 		}
 	}
 }
