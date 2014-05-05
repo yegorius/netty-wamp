@@ -47,4 +47,8 @@ public class WampServer {
 	public boolean addTopic(String topicURI, TopicModerator moderator, Boolean notify) {
 		return topics.put(topicURI, new ModeratedTopic(topicURI, moderator, notify)) == null;
 	}
+
+	public Topic removeTopic(Topic topic) {
+		return topics.remove(topic.topicURI);
+	}
 }
