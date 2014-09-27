@@ -89,7 +89,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         else if (frame instanceof PingWebSocketFrame)
 			ctx.channel().write(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.content().retain()));
 		else if (frame instanceof PongWebSocketFrame)
-			frame.release();
+			logger.debug("Pong msg received.");
 		else if (frame instanceof BinaryWebSocketFrame)
 			throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));
 		else if (frame instanceof ContinuationWebSocketFrame)
